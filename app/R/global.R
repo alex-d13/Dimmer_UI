@@ -14,7 +14,7 @@ annotation_checked <- FALSE
 
 # -------- TEXT -------- 
 
-source('../www/texts.R')
+source('texts.R')
 
 
 # ------ MODALS ---------

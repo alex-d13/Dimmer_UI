@@ -3,4 +3,5 @@
 .RData
 .Ruserdata
 data/
-src/dimmer.jar
+src/
+logs/
