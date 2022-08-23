@@ -7,15 +7,15 @@ run_dimmer <- function(console_file){
 
 
 # function to create config file from shiny inputs
-create_config <- function(volumes, input){
+create_config <- function(input){
   #config_file <- tempfile('dimmer_config_', fileext = '.txt')
   config_text <- list()
   
-  config_text$output_path <- ifelse(is.null(input$dimmer_output_path), sprintf('output_path:'), sprintf('output_path: %s', parseDirPath(volumes, input$dimmer_output_path)))
+  config_text$output_path <- ifelse(is.null(input$dimmer_output_path), sprintf('output_path:'), sprintf('output_path: %s', input$dimmer_output_path))
   config_text$annotation_path <- ifelse(is.null(input$dimmer_annotation_path), sprintf('annotation_path:'), sprintf('annotation_path: %s', input$dimmer_annotation_path))  
   config_text$variable <- sprintf('variable: %s', input$dimmer_variable)
   config_text$dimmer_project_path <- ifelse(is.null(input$dimmer_project_path), sprintf('dimmer_project_path:'), sprintf('dimmer_project_path: %s', input$dimmer_project_path))
-  config_text$threads <- sprintf('threads: %s', input$dimmer_threads)
+  config_text$threads <- sprintf('threads: %illll', input$dimmer_threads)
   
   config_text$input_type <- sprintf('input_type: %s', input$dimmer_input_type)
   
@@ -38,7 +38,7 @@ create_config <- function(volumes, input){
   config_text$min_variance <- sprintf('min_variance: %f', input$dimmer_min_variance)
   
   config_text$data_type <- sprintf('data_type: %s', input$dimmer_data_type)
-  config_text$n_permutations_cpg <- sprintf('n_permutations_cpg: %f', input$dimmer_n_permutations_cpg)
+  config_text$n_permutations_cpg <- sprintf('n_permutations_cpg: %i', input$dimmer_n_permutations_cpg)
   config_text$model <- sprintf('model: %s', input$dimmer_model)
   config_text$alternative_hypothesis <- sprintf('alternative_hypothesis: %s', input$dimmer_alternative_hypothesis)
   config_text$assume_equal_variance <- ifelse(input$dimmer_assume_equal_variance, print('assume_equal_variance: true'), print('assume_equal_variance: false'))
@@ -46,14 +46,14 @@ create_config <- function(volumes, input){
   
   config_text$dmr_search <- ifelse(input$dimmer_dmr_search, print('dmr_search: true'), print('dmr_search: false'))
   config_text$pause <- ifelse(input$dimmer_pause, print('pause: true'), print('pause: false'))
-  config_text$max_cpg_dist <- sprintf('max_cpg_dist: %f', input$dimmer_max_cpg_dist)
-  config_text$w_size <- sprintf('w_size: %f', input$dimmer_w_size)
-  config_text$n_exceptions <- sprintf('n_exceptions: %f', input$dimmer_n_exceptions)
+  config_text$max_cpg_dist <- sprintf('max_cpg_dist: %i', input$dimmer_max_cpg_dist)
+  config_text$w_size <- sprintf('w_size: %i', input$dimmer_w_size)
+  config_text$n_exceptions <- sprintf('n_exceptions: %i', input$dimmer_n_exceptions)
   config_text$p_value_cutoff <- sprintf('p_value_cutoff: %f', input$dimmer_p_value_cutoff)
   config_text$min_diff <- sprintf('min_diff: %f', input$dimmer_min_diff)
   config_text$p_value_type <- sprintf('p_value_type: %s', input$dimmer_p_value_type)
-  config_text$n_permutations_dmr <- sprintf('n_permutations_dmr: %f', input$dimmer_n_permutations_dmr)
-  config_text$n_random_regions <- sprintf('n_random_regions: %f', input$dimmer_n_random_regions)
+  config_text$n_permutations_dmr <- sprintf('n_permutations_dmr: %i', input$dimmer_n_permutations_dmr)
+  config_text$n_random_regions <- sprintf('n_random_regions: %i', input$dimmer_n_random_regions)
   
   config_text$save_permu_plots <- ifelse(input$dimmer_save_permu_plots, print('save_permu_plots: true'), print('save_permu_plots: false'))
   config_text$save_beta <- ifelse(input$dimmer_save_beta, print('save_beta: true'), print('save_beta: false'))
@@ -62,4 +62,20 @@ create_config <- function(volumes, input){
   config_text$save_search_tables <- ifelse(input$dimmer_save_search_tables, print('save_search_tables: true'), print('save_search_tables: false'))
   
   return(config_text)
+}
+
+check_variable <- function(variable, df){
+  binary <- FALSE
+  numeric <- FALSE
+  
+  if(length(unique(df[,variable])) == 2){
+    binary <- TRUE
+  }
+  
+  if(is.numeric(df[,variable])){
+    numeric <- TRUE
+  }
+  
+  return(list(numeric=numeric,
+              binary=binary))
 }

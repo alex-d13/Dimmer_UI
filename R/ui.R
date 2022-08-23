@@ -79,11 +79,25 @@ ui <- dashboardPage(
       tabItem(
         tabName = 'dimmer_config',
         h1('Setup configuration for DiMmer'),
+         
+      #   column(12, spsTimeline(
+      #     'timeLine',
+      #     up_labels = c('','','','','',''),
+      #     down_labels = c('Settings without defaults',
+      #                   'Input & Preprocessing',
+      #                   'CpG statistics and permutations',
+      #                   'DMR search settings',
+      #                   'Output settings',
+      #                   'Finish'),
+      #     completes = c(F,F,F,F,F,F),
+      #     icons = list(icon("cog"), icon("cog"), icon("cog"), icon("cog"), icon("cog"), icon('fas fa-check-double'))
+      #   )),
         
         fluidRow(
           box(
             title = 'Settings without defaults', width = 6, collapsible = F, solidHeader = T, status = 'primary',
-            shinyDirButton('dimmer_output_path',label = 'Select existing output directory', title = 'Please choose a directory'),
+            clearableTextInput("dimmer_output_path", 'Enter path of existing output directory',placeholder = '~/dimmer_output'),
+            #shinyDirButton('dimmer_output_path',label = 'Select existing output directory', title = 'Please choose a directory'),
             verbatimTextOutput("dimmer_output_dir_text", placeholder = TRUE),
             hr(),
             fileInput('dimmer_annotation_path', label = 'Select a sample annotation file', multiple = F),
@@ -96,7 +110,7 @@ ui <- dashboardPage(
               wellPanel(HTML(bisulfite.info()))
             ),
             
-            selectInput('dimmer_variable','Choose your variable of interest', choices = c('Please upload sample annotation file first') ),
+            selectInput('dimmer_variable','Choose your variable of interest', choices = c('Please upload a sample annotation file first.') ),
             hr(),
             fileInput('dimmer_project_path', label = 'Select existing DiMmer project file', multiple = F),
             p('If an existing project is loaded, DiMmer will directly start the DMR search.')
@@ -116,11 +130,11 @@ ui <- dashboardPage(
               p('Cell composition estimation (only available for the "Regression" model):'),
               prettyCheckbox('dimmer_cell_composition','Perform cell composition estimation', value = FALSE, status='primary'),
               fileInput('dimmer_cell_composition_path','Path to cell composition estimation files', multiple = F),
-              pickerInput('dimmer_cell_types','Select considered cell types', 
+              hidden(pickerInput('dimmer_cell_types','Select considered cell types', 
                           choices = c('cd8t', 'cd4t', 'nk', 'ncell', 'mono', 'gran'), 
                           selected = c('cd8t', 'cd4t', 'nk', 'ncell', 'mono', 'gran'),
                           multiple = T
-              )
+              ))
             ),
             
             conditionalPanel(

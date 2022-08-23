@@ -1,11 +1,8 @@
-FROM ubuntu:22.04
-LABEL description="Image for DimMer"
+FROM ubuntu:20.04
+LABEL description="Image for DiMmer"
 LABEL maintainer="Alexander Dietrich"
 
-RUN apt-get update && apt-get install -y \
-    git \
-    vim \
-    wget
+RUN apt-get update && apt-get install -y wget
 
 
 # install JDK8 including JFX

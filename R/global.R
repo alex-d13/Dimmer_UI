@@ -7,8 +7,10 @@ source('run_dimmer.R')
 
 # -------- VARIABLES -------- 
 
+# path do dimmer jar
 dimmer_path <- 'src/dimmer.jar'
 
+annotation_checked <- FALSE
 
 # -------- TEXT -------- 
 
