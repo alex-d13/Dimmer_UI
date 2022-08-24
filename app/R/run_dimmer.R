@@ -1,13 +1,27 @@
 
 # function to run Dimmer with a config file
-run_dimmer <- function(console_file){
-  cmd <- paste0('java -jar ', dimmer_path,' ',console_file)
-  system(cmd)
-}
-
-
 # function to create config file from shiny inputs
-create_config <- function(input){
+create_config <- function(input, annotation_data){
+  
+  if(is.null(input$dimmer_output_path)){
+    shinyCatch(stop('You need to specify the output directory!'), blocking_level = "error", position = 'bottom-left',shiny = T)
+    return(NULL)
+  }
+  if(is.null(input$dimmer_annotation_path)){
+    shinyCatch(stop('You need to upload a sample annotation file!'), blocking_level = "error", position = 'bottom-left',shiny = T)
+    return(NULL)
+  }
+  
+  dimmer_variable_type <- check_variable(input$dimmer_variable, annotation_data)
+  if(input$dimmer_model == 'Regression' && !dimmer_variable_type$numeric){
+    shinyCatch(stop('Selected variable needs to be numeric when using Regression model!'), blocking_level = "error", position = 'bottom-left',shiny = T)
+    return(NULL)
+  }
+  if(input$dimmer_model == 'T-test' && !dimmer_variable_type$binary){
+    shinyCatch(stop('Selected variable needs to be binary when using T-test model!'), blocking_level = "error", position = 'bottom-left',shiny = T)
+    return(NULL)
+  }
+  
   #config_file <- tempfile('dimmer_config_', fileext = '.txt')
   config_text <- list()
   
@@ -15,7 +29,7 @@ create_config <- function(input){
   config_text$annotation_path <- ifelse(is.null(input$dimmer_annotation_path), sprintf('annotation_path:'), sprintf('annotation_path: %s', input$dimmer_annotation_path))  
   config_text$variable <- sprintf('variable: %s', input$dimmer_variable)
   config_text$dimmer_project_path <- ifelse(is.null(input$dimmer_project_path), sprintf('dimmer_project_path:'), sprintf('dimmer_project_path: %s', input$dimmer_project_path))
-  config_text$threads <- sprintf('threads: %illll', input$dimmer_threads)
+  config_text$threads <- sprintf('threads: %i', input$dimmer_threads)
   
   config_text$input_type <- sprintf('input_type: %s', input$dimmer_input_type)
   
@@ -78,4 +92,22 @@ check_variable <- function(variable, df){
   
   return(list(numeric=numeric,
               binary=binary))
+}
+
+
+#function to unzip/untar files 
+decompress <- function(archive, new_location){
+  file_exts <- strsplit(archive, split="\\.")[[1]][2]
+  
+  if(c("tar") %in% file_exts){
+    met_files <- untar(archive, list=T)
+    untar(archive, exdir=new_location)
+  }else if(c("zip") %in% file_exts){
+    met_files <- unzip(archive, list=T)[["Name"]]
+    unzip(archive, exdir=new_location)
+  }else{
+    return(1)# no valid file extension/compression
+  }
+  unlink(archive)
+  return(met_files)
 }

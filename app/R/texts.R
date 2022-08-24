@@ -26,3 +26,8 @@ bisulfite.info <- function(){
 model.warning <- function(){
   '<font color="red"> Regression is not possible when using paired data! </font>  '
 }
+
+upload.info <- function(){
+  '<b> Upload Information: </b><br>
+  TODO.'
+}

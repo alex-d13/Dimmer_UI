@@ -2,7 +2,9 @@ FROM rocker/shiny:4.1.0
 LABEL description="Image for DiMmer"
 LABEL maintainer="Alexander Dietrich"
 
-RUN apt-get update && apt-get install -y wget
+RUN apt-get update && apt-get install -y \
+  wget \
+  less
 
 
 # install JDK8 including JFX

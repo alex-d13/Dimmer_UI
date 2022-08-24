@@ -8,9 +8,15 @@ source('run_dimmer.R')
 # -------- VARIABLES -------- 
 
 # path do dimmer jar
-dimmer_path <- 'src/dimmer.jar'
+dimmer_path <- '/bin/dimmer.jar'
+
+#directory, where annotation file and methylation files will be stored
+global_dir <- tempdir(check = TRUE)
 
 annotation_checked <- FALSE
+met_files_processed <- FALSE
+
+overlay_color <- "rgb(51, 62, 72, .5)"
 
 # -------- TEXT -------- 
 

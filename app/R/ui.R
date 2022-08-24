@@ -4,7 +4,7 @@ ui <- dashboardPage(
   title = 'DiMmer',
   
   dashboardHeader(
-    title = span("DiMmer"),
+    title = span("DiMmer 3.0"),
     titleWidth = 300,
     dropdownMenu(
       type = 'notifications',
@@ -34,6 +34,7 @@ ui <- dashboardPage(
       id='sidebarmenu',
       menuItem('Welcome', tabName='dimmer_welcome',icon=icon('fas fa-home')),
       menuItem('Configuration', tabName='dimmer_config',icon=icon('fas fa-wrench')),
+      menuItem('Data Upload', tabName='dimmer_upload', icon=icon("upload")),
       downloadBttn("dimmer_create_config", 
                    label = "Create config file", 
                    icon = icon('fas fa-check-double'), 
@@ -57,6 +58,8 @@ ui <- dashboardPage(
     
     useShinyjs(),
     introjsUI(),
+    waiter::use_waiter(),
+    #waiter_show_on_load(html = tagList(spin_rotating_plane(), "Preparing Dimmer UI ...")),
     
     tabItems(
       tabItem(
@@ -208,7 +211,28 @@ ui <- dashboardPage(
             numericInput('dimmer_threads', 'Select number of threads to run DiMmer', min=1, max=300, step=1,value=4)
           )
         )
-
+      ),
+      
+      tabItem(
+        tabName = 'dimmer_upload',
+        h1('Upload methylation data'),
+        
+        fluidRow(
+          column(8,           
+            box(
+                title='Data Upload', width=12, collapsible = F,
+                shinyjs::disabled(fileInput('dimmer_upload_methylation',
+                          'Select compressed archive with methylation data',
+                          multiple = F, accept = c('.zip','.tar.gz','.gz'))),
+                p(class='text-red', 'Please upload annotation file before uploading methylation data.')
+          ))
+        ),
+        fluidRow(
+          column(12, infoBoxOutput('dimmer_upload_ready'))
+        ),
+        fluidRow(
+          column(8, wellPanel(HTML(upload.info())))
+        )
       )
     )
   )
