@@ -9,12 +9,11 @@ source('run_dimmer.R')
 
 # path do dimmer jar
 dimmer_path <- '/bin/dimmer.jar'
+#dimmer_path <- '~/NetfLID/Dimmer_UI/src/dimmer.jar'
 
 #directory, where annotation file and methylation files will be stored
 global_dir <- tempdir(check = TRUE)
-
-annotation_checked <- FALSE
-met_files_processed <- FALSE
+output_dir <- paste0(tempdir(check = TRUE),'/output')
 
 overlay_color <- "rgb(51, 62, 72, .5)"
 
@@ -22,23 +21,3 @@ overlay_color <- "rgb(51, 62, 72, .5)"
 
 source('texts.R')
 
-
-# ------ MODALS ---------
-
-errorModal <- function(error_message=NULL){
-  modalDialog(
-    title = 'Something went wrong.',
-    p(error_message,style="color:red;"),
-    easyClose = T,
-    modalButton("Cancel")
-  )
-}
-
-infoModal <- function(info_message=NULL){
-  modalDialog(
-    title = 'Success!',
-    p(info_message,style="color:green;"),
-    easyClose = T,
-    modalButton("Close")
-  )
-}

@@ -17,7 +17,6 @@ ENV PATH=$PATH:/opt/zulu8.62.0.19-ca-fx-jdk${JDK_VERSION}-linux_x64/bin
 WORKDIR /bin
 RUN wget https://github.com/baumbachlab/Dimmer/releases/download/2.1/dimmer.jar 
 
-
 # setup renv to handle R packages
 ENV RENV_VERSION 0.15.5
 RUN R -e "install.packages(c('remotes'), repos = c(CRAN = 'https://cloud.r-project.org'))"

@@ -6,13 +6,14 @@ ui <- dashboardPage(
   dashboardHeader(
     title = span("DiMmer 3.0"),
     titleWidth = 300,
+    
     dropdownMenu(
       type = 'notifications',
       headerText = strong("HELP"),
       icon = icon('question'),
       badgeStatus = NULL,
       notificationItem(
-        text = ('TEST'),
+        text = ('DiMmer Manual'),
         icon = icon("spinner")
       )
     ),
@@ -31,6 +32,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     width = 300,
     sidebarMenu(
+      useShinyjs(),
       id='sidebarmenu',
       menuItem('Welcome', tabName='dimmer_welcome',icon=icon('fas fa-home')),
       menuItem('Configuration', tabName='dimmer_config',icon=icon('fas fa-wrench')),
@@ -45,10 +47,11 @@ ui <- dashboardPage(
       actionBttn("dimmer_start", 
                  label = "START DiMmer", 
                  icon = icon('play-circle'), 
-                 color = "danger",
+                 color = "success",
                  size = 'l',
                  block = F,
-                 style = 'simple')
+                 style = 'simple'),
+      uiOutput('dimmer_download')
     )
   ),
   
@@ -56,7 +59,7 @@ ui <- dashboardPage(
     
     includeCSS('../www/style.css'),
     
-    useShinyjs(),
+    #useShinyjs(),
     introjsUI(),
     waiter::use_waiter(),
     #waiter_show_on_load(html = tagList(spin_rotating_plane(), "Preparing Dimmer UI ...")),
@@ -96,7 +99,6 @@ ui <- dashboardPage(
             title = 'Settings without defaults', width = 6, collapsible = F, solidHeader = T, status = 'primary',
             clearableTextInput("dimmer_output_path", 'Enter path of existing output directory',placeholder = '~/dimmer_output'),
             #shinyDirButton('dimmer_output_path',label = 'Select existing output directory', title = 'Please choose a directory'),
-            verbatimTextOutput("dimmer_output_dir_text", placeholder = TRUE),
             hr(),
             fileInput('dimmer_annotation_path', label = 'Select a sample annotation file', multiple = F),
             conditionalPanel(
@@ -181,7 +183,7 @@ ui <- dashboardPage(
           box(
             title = 'DMR search settings', width=6, collapsible = F, solidHeader = T, status = 'primary',
             prettyCheckbox('dimmer_dmr_search','Select whether the program should execute the DMR search. If unchecked, DiMmer will terminate after the CpG permutations.', TRUE, status='primary'),
-            prettyCheckbox('dimmer_pause','Select if the program should pause before the DMR search. Some of the following variables might need information from the previous results to be set properly. If the pause option is set, the program will pause and let you inspect the interim results. Then you have the option to refine the variables from the next section by hand via additional inputs.', TRUE, status='primary'),
+            #prettyCheckbox('dimmer_pause','Select if the program should pause before the DMR search. Some of the following variables might need information from the previous results to be set properly. If the pause option is set, the program will pause and let you inspect the interim results. Then you have the option to refine the variables from the next section by hand via additional inputs.', TRUE, status='primary'),
             numericInput('dimmer_max_cpg_dist', 'Set the maximum distance between CpGs in an island', min=1, max=100000, step=1, value=1000),
             numericInput('dimmer_w_size', 'Set the window size for the DMR search', min=1, max=100, step=1, value=5),
             numericInput('dimmer_n_exceptions', 'Set the number of exceptions (number of not significantly diff. methylated CpGs allowed in the window)', min=1, max=100, step=1, value=2),
@@ -221,14 +223,18 @@ ui <- dashboardPage(
           column(8,           
             box(
                 title='Data Upload', width=12, collapsible = F,
-                shinyjs::disabled(fileInput('dimmer_upload_methylation',
+                fileInput('dimmer_upload_methylation',
                           'Select compressed archive with methylation data',
-                          multiple = F, accept = c('.zip','.tar.gz','.gz'))),
-                p(class='text-red', 'Please upload annotation file before uploading methylation data.')
+                          multiple = F, accept = c('.zip','.tar.gz','.gz')),
+                actionBttn("dimmer_methylation_check", 
+                           label = "Check and extract methylation data",
+                           color = "warning",
+                           size = 's',
+                           block = F,
+                           style = 'simple'),
+                p(id='dimmer_methylation_text_ready','Before starting DiMmer, please press this button to check that all input files are present.',style="color:red"),
+                p(id='dimmer_methylation_text_notready','Input files have been checked and DiMmer is now ready to run.',style="color:green")
           ))
-        ),
-        fluidRow(
-          column(12, infoBoxOutput('dimmer_upload_ready'))
         ),
         fluidRow(
           column(8, wellPanel(HTML(upload.info())))

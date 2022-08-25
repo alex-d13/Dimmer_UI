@@ -22,6 +22,8 @@ create_config <- function(input, annotation_data){
     return(NULL)
   }
   
+  shinyCatch(message("Creating config file ..."), blocking_level = "none", position = 'bottom-left',shiny = T)
+  
   #config_file <- tempfile('dimmer_config_', fileext = '.txt')
   config_text <- list()
   
@@ -59,7 +61,7 @@ create_config <- function(input, annotation_data){
   config_text$confounding_variables <- sprintf('confounding_variables: %s', paste(input$dimmer_confounding_variables, sep=', '))
   
   config_text$dmr_search <- ifelse(input$dimmer_dmr_search, print('dmr_search: true'), print('dmr_search: false'))
-  config_text$pause <- ifelse(input$dimmer_pause, print('pause: true'), print('pause: false'))
+  config_text$pause <- sprintf('pause: false')   # ------> hardcoded to FALSE, did not find solution to this yet
   config_text$max_cpg_dist <- sprintf('max_cpg_dist: %i', input$dimmer_max_cpg_dist)
   config_text$w_size <- sprintf('w_size: %i', input$dimmer_w_size)
   config_text$n_exceptions <- sprintf('n_exceptions: %i', input$dimmer_n_exceptions)

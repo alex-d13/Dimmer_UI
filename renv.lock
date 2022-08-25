@@ -100,6 +100,14 @@
         "rlang"
       ]
     },
+    "evaluate": {
+      "Package": "evaluate",
+      "Version": "0.16",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "9a3d3c345f8a5648abe61608aaa29518",
+      "Requirements": []
+    },
     "fastmap": {
       "Package": "fastmap",
       "Version": "1.1.0",
@@ -134,6 +142,16 @@
       "Repository": "CRAN",
       "Hash": "4f2596dfb05dac67b9dc558e5c6fba2e",
       "Requirements": []
+    },
+    "highr": {
+      "Package": "highr",
+      "Version": "0.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "8eb36c8125038e648e5d111c0d7b2ed4",
+      "Requirements": [
+        "xfun"
+      ]
     },
     "htmltools": {
       "Package": "htmltools",
@@ -178,6 +196,20 @@
       "Repository": "CRAN",
       "Hash": "d07e729b27b372429d42d24d503613a0",
       "Requirements": []
+    },
+    "knitr": {
+      "Package": "knitr",
+      "Version": "1.40",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "caea8b0f899a0b1738444b9bc47067e7",
+      "Requirements": [
+        "evaluate",
+        "highr",
+        "stringr",
+        "xfun",
+        "yaml"
+      ]
     },
     "later": {
       "Package": "later",
@@ -346,6 +378,19 @@
         "shiny"
       ]
     },
+    "shinyalert": {
+      "Package": "shinyalert",
+      "Version": "3.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "2fd42421abd79dcaf0855fa1d21599a3",
+      "Requirements": [
+        "htmltools",
+        "knitr",
+        "shiny",
+        "uuid"
+      ]
+    },
     "shinydashboard": {
       "Package": "shinydashboard",
       "Version": "0.7.2",
@@ -427,6 +472,14 @@
         "stringi"
       ]
     },
+    "uuid": {
+      "Package": "uuid",
+      "Version": "1.1-0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f1cb46c157d080b729159d407be83496",
+      "Requirements": []
+    },
     "waiter": {
       "Package": "waiter",
       "Version": "0.2.5",
@@ -447,12 +500,28 @@
       "Hash": "c0e49a9760983e81e55cdd9be92e7182",
       "Requirements": []
     },
+    "xfun": {
+      "Package": "xfun",
+      "Version": "0.32",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0498af3034691dde715dcd86198efe75",
+      "Requirements": []
+    },
     "xtable": {
       "Package": "xtable",
       "Version": "1.8-4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "b8acdf8af494d9ec19ccb2481a9b11c2",
+      "Requirements": []
+    },
+    "yaml": {
+      "Package": "yaml",
+      "Version": "2.3.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "458bb38374d73bf83b1bb85e353da200",
       "Requirements": []
     }
   }
