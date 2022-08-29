@@ -3,22 +3,26 @@
 # function to create config file from shiny inputs
 create_config <- function(input, annotation_data){
   
-  if(is.null(input$dimmer_output_path)){
-    shinyCatch(stop('You need to specify the output directory!'), blocking_level = "error", position = 'bottom-left',shiny = T)
-    return(NULL)
-  }
+  # if(is.null(input$dimmer_output_path)){
+  #   shinyCatch(stop('You need to specify the output directory!'), blocking_level = "error", position = 'bottom-left',shiny = T)
+  #   waiter::waiter_hide()
+  #   return(NULL)
+  # }
   if(is.null(input$dimmer_annotation_path)){
     shinyCatch(stop('You need to upload a sample annotation file!'), blocking_level = "error", position = 'bottom-left',shiny = T)
+    waiter::waiter_hide()
     return(NULL)
   }
   
   dimmer_variable_type <- check_variable(input$dimmer_variable, annotation_data)
   if(input$dimmer_model == 'Regression' && !dimmer_variable_type$numeric){
     shinyCatch(stop('Selected variable needs to be numeric when using Regression model!'), blocking_level = "error", position = 'bottom-left',shiny = T)
+    waiter::waiter_hide()
     return(NULL)
   }
   if(input$dimmer_model == 'T-test' && !dimmer_variable_type$binary){
     shinyCatch(stop('Selected variable needs to be binary when using T-test model!'), blocking_level = "error", position = 'bottom-left',shiny = T)
+    waiter::waiter_hide()
     return(NULL)
   }
   
@@ -47,10 +51,10 @@ create_config <- function(input, annotation_data){
   config_text$gran <- ifelse('gran' %in% input$dimmer_cell_types, print('gran: true'), print('gran: false'))
   
   config_text$beta_path <- ifelse(is.null(input$dimmer_beta_path), print('beta_path:'), sprintf('beta_path: %s', input$dimmer_beta_path))
-  config_text$array_type <- ifelse(is.null(input$dimmer_beta_path), print('array_type:'), sprintf('array_type: %s', input$dimmer_array_type))
+  config_text$array_type <- ifelse(is.null(input$dimmer_array_type), print('array_type:'), sprintf('array_type: %s', input$dimmer_array_type))
   
-  config_text$min_reads <- sprintf('min_reads: %f', input$dimmer_min_reads)
-  config_text$n_min_read_exceptions <- sprintf('n_min_read_exceptions: %f', input$dimmer_n_min_read_exceptions)
+  config_text$min_reads <- sprintf('min_reads: %i', input$dimmer_min_reads)
+  config_text$n_min_read_exceptions <- sprintf('n_min_read_exceptions: %i', input$dimmer_n_min_read_exceptions)
   config_text$min_variance <- sprintf('min_variance: %f', input$dimmer_min_variance)
   
   config_text$data_type <- sprintf('data_type: %s', input$dimmer_data_type)
@@ -111,5 +115,5 @@ decompress <- function(archive, new_location){
     return(1)# no valid file extension/compression
   }
   unlink(archive)
-  return(met_files)
+  return(0)
 }

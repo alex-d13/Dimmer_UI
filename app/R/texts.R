@@ -11,32 +11,92 @@ welcome.dimmer <- function(){
   cells composition estimation. <br>'
 }
 
-idat.info <- function(){
-  '<b> Important: </b><br>
-  The raw .idat files are expected to be at one of two places, relative to the uploaded sample annotation file: <br>
-  The first option is, that all .idat files are in the same directory as the sample annotation file, the second one is, that they are in sub-directories with the same name as their Sentrix ID.<br>
-  For a detailed example, please check the user manual.'
-}
-
-beta.info <- function(){
-  '<b> Important: </b><br>
-  The beta-value matrix input offers three different subtypes: A beta-matrix originating from a 450k array, from a 850k/EPIC array of a completely custom matrix. The format of the sample annotation file depends on the chosen subtype.<br>
-  For detailed examples for all three options, please check the user manual.'
-}
-
-bisulfite.info <- function(){
-  '<b> Important: </b><br>
-  The whole genome bisulfite sequencing input needs the absolute or relative path to all input files contained in the sample column of the sample annotation file. <br>
-  For a detailed example, please check the user manual.'
-}
-
 model.warning <- function(){
   '<font color="red"> Regression is not possible when using paired data! </font>  '
 }
 
-upload.info <- function(){
+upload.info.idat.annotation <- function(){
   '<b> Upload Information: </b><br>
-  DiMmer UI expects you to have uploaded an annotation file in the configuration tab prior to uploading methylation data. <br><br>
-  All necessary input files need to be combined into one compressed archive, .zip and .tar.gz is accepted.<br>
-  '
+  IDAT sample annotation files usually come with your Illumina results and have two <b>mandatory</b> columns:<br>
+  <ul>
+  <li>Sentrix_ID</li>
+  <li>Sentrix_Position</li>
+  </ul> 
+  Further standard columns are:
+  <ul>
+  <li>Group_ID</li>
+  <li>Pair_ID</li>
+  <li>Gender_ID</li>
+  </ul>'
+}
+
+upload.info.idat.methyl <- function(){
+  '<b> Upload Information: </b><br>
+  DiMmer UI expects you to have uploaded an annotation file in the tab prior to uploading methylation data. <br>
+  The mandatory columns are used to link the samples to their corresponding .idat files. Therefore, the .idat
+  files need to have a specific name, inlcuding the Sentrix_ID and Sentrix_Position: <br>
+  <code>&lt;Sentrix_ID&gt;_&ltSentrix_Position&gt;_Grn.idat</code><br>
+  <code>&lt;Sentrix_ID&gt;_&ltSentrix_Position&gt;_Red.idat</code><br>
+  In order to provide these files to DiMmer via this webapp, keep this file naming convention and <b>combine all
+  .idat files into a compressed archive (.zip or .tar.gz)</b>.
+  The Group ID column in the annotation file can be used to split your data in two different groups. Pair ID
+  is used to identify the pairs in the case of a paired study. For paired data, two samples are linked together
+  (mate 1 and mate 2) and will form a pair. This is useful, if you have two samples (e.g. case/control) for each
+  individual patient. Two samples are linked by having the same pair id in the Pair ID column in the sample
+  annotation file. The column Pair ID is required to do a paired analysis.<br>
+  The column Gender ID assigns sexes to the samples (”M”/”F”). If the column doesn’t exist, the sex of a
+  sample will be estimated using the data.<br>
+  Additional columns (e.g. age, weight, etc.) can be added and used as co-factors for regression analysis or
+  grouping.'  
+}
+
+
+upload.info.beta.annotation <- function(){
+  '<b> Upload Information: </b><br>
+  The beta-value matrix input offers three different subtypes: A beta-matrix originating from a 450k array, from
+  a 850k/EPIC array of a completely custom matrix. <b>The format of the sample annotation file depends on the
+  chosen subtype.</b> For the beta-value input no preprocessing will be performed, so the column Gender ID
+  doesn’t have an effect.<br><br>
+  <u><b>Illumina array beta-value matrix</b></u><br>
+  DAT sample annotation files usually come with your Illumina results and have two <b>mandatory</b> columns:<br>
+  <ul>
+  <li>Sentrix_ID</li>
+  <li>Sentrix_Position</li>
+  </ul> 
+  Further standard columns are:
+  <ul>
+  <li>Group_ID</li>
+  <li>Pair_ID</li>
+  <li>Gender_ID</li>
+  </ul> 
+  <u><b>Custom beta-value matrix</b></u><br>
+  If the beta-value matrix originates from a different source and you don’t have CpG ids, it is possible to load a
+  custom beta matrix. In this case Sentrix ID and Sentrix Position are <b>not necessary in the sample annotation
+  file, instead they get replaced by a single column ”sample”</b>. This column is used to link the samples to the
+  columns in the beta-value matrix.<br>'
+}
+
+upload.info.beta.methyl <- function(){
+  '<b> Upload Information: </b><br>
+  <u><b>Illumina array beta-value matrix</b></u><br>
+  The beta-matrix itself file has to be <b>a comma-separated .csv file</b>. The header must match the samples specified
+  in the sample annotation file. Each sample has its own column. In order to link the to their counterparts
+  in the sample annotation file, the columns have to be named as <code>Sentrix_ID + ”_” + Sentrix_Position</code>, where
+  Sentrix ID and Sentrix Position are the corresponding field values form the annotation file. Each CpG has
+  its own line with the CpG-Id in the first column and the beta values in the subsequent columns.<br><br>
+  <u><b>Custom beta-value matrix</b></u><br>
+  Instead of Illumina CpG ids, the first column in the matrix has to be genomic positions in the format <code>chr:position</code>.<br>'
+}
+
+upload.info.bisulfite.annotation <- function(){
+  '<b> Upload Information: </b><br>
+  Similar to the custom beta-value matrix input the annotation file columns Sentrix_ID and Sentrix_Position get replaced by
+  the single column ”sample”. However, it is not used to link matrix columns to a row in the sample annotation
+  file, but <b>.cov files</b>. Please enter the full name of these .cov files in the ”sample” column (no path, only filename).<br> '
+}
+
+upload.info.bisulfite.methyl <- function(){
+  '<b> Upload Information: </b><br>
+  This is done by a path to the file (either absolute or relative to the sample annotation file).
+  The .cov files are created by the extractor of the Bismark Bisulfite Mapper'
 }

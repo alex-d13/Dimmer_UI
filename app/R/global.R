@@ -21,3 +21,10 @@ overlay_color <- "rgb(51, 62, 72, .5)"
 
 source('texts.R')
 
+
+jscode <- "
+shinyjs.collapse = function(boxid) {
+$('#' + boxid).closest('.box').find('[data-widget=collapse]').click();
+}
+"
+
