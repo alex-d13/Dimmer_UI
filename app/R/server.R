@@ -210,7 +210,7 @@ server <- function(input, output, session) {
       
       shinyCatch(message("Starting DiMmer ..."), blocking_level = "none", position = 'bottom-left',shiny = T)
       system2(command = 'java', args = dimmer_cmd, 
-              #stdout = paste0(output_dir,'/logs_stdout.txt'), 
+              stdout = paste0(output_dir,'/logs_stdout.txt'), 
               stderr = paste0(output_dir,'/logs_stderr.txt'))
       waiter::waiter_hide()
       shinyalert("Success!", "DiMmer has finished with processing your files. The download button in the sidebar has now been activated to download your results.", 
