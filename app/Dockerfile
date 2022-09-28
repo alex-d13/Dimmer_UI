@@ -9,13 +9,13 @@ RUN apt-get update && apt-get install -y \
 
 # install JDK8 including JFX
 WORKDIR /opt
-ENV JDK_VERSION 8.0.332
-RUN wget https://cdn.azul.com/zulu/bin/zulu8.62.0.19-ca-fx-jdk${JDK_VERSION}-linux_x64.tar.gz && tar -xzvf zulu8.62.0.19-ca-fx-jdk${JDK_VERSION}-linux_x64.tar.gz && chmod 777 zulu8.62.0.19-ca-fx-jdk${JDK_VERSION}-linux_x64/*
-ENV PATH=$PATH:/opt/zulu8.62.0.19-ca-fx-jdk${JDK_VERSION}-linux_x64/bin
+ENV JDK_VERSION 11.0.16.1
+RUN wget https://cdn.azul.com/zulu/bin/zulu11.58.23-ca-jdk${JDK_VERSION}-linux_x64.tar.gz && tar -xzvf zulu11.58.23-ca-jdk${JDK_VERSION}-linux_x64.tar.gz && chmod 777 zulu11.58.23-ca-jdk${JDK_VERSION}-linux_x64/*
+ENV PATH=$PATH:/opt/zulu11.58.23-ca-jdk${JDK_VERSION}-linux_x64/bin
 
 # download DiMmer jar
 WORKDIR /bin
-RUN wget https://github.com/baumbachlab/Dimmer/releases/download/2.1/dimmer.jar 
+RUN wget https://github.com/baumbachlab/Dimmer/releases/download/2.2/dimmer.jar 
 
 # setup renv to handle R packages
 ENV RENV_VERSION 0.15.5
