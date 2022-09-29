@@ -3,18 +3,18 @@ server <- function(input, output, session) {
   # Upload max of 10Gb
   options(shiny.maxRequestSize = 10000 * 1024^2)
   session$onSessionEnded(stopApp)
-  annotation_data <- reactiveValues()
+  data <- reactiveValues(annotation_data = NULL)
   
   status_list <- reactiveValues(annotation_checked = FALSE,
                                 methylation_checked = FALSE,
                                 dimmer_finished = FALSE)
+  selected_variable <- NULL
   
   observeEvent(input$dimmer_get_started, {
     updateTabItems(session,"sidebarmenu", selected = "dimmer_workflow")
   })
   
-  # automatically read annotation file if something is uploaded
-  annotation_data <- reactive({
+  observeEvent(input$dimmer_upload_annotation, {
     
     status_list$annotation_checked <- FALSE
     req(input$dimmer_annotation_path) # require that input is available, prevents error when no data uploaded
@@ -27,7 +27,12 @@ server <- function(input, output, session) {
       df <- read.csv(inFileNew, check.names = FALSE)
       if(is.null(colnames(df))){return(NULL)}
       status_list$annotation_checked <- TRUE
-      return(list(df=df, anno_file=inFileNew))
+      data$annotation_data$df <- df
+      data$annotation_data$anno_file <- inFileNew
+      
+      show('dimmer_upload_div', anim=T)
+      hide('dimmer_upload_text_div', anim=T)
+      show('dimmer_confirm1', anim=T)
       
     }, error = function(e){
       shinyCatch(stop("Error while reading annotation file."), blocking_level = "error", position = 'bottom-left',shiny = T)
@@ -37,13 +42,13 @@ server <- function(input, output, session) {
   })
   
   output$dimmer_annotation_table_output <- renderDataTable({
-    if(!is.null(annotation_data()$df)){
-      annotation_data()$df
+    if(!is.null(data$annotation_data$df)){
+      data$annotation_data$df
     }
   })
   
   observeEvent(input$dimmer_confirm1, {
-    if(is.null(annotation_data()$df)){
+    if(is.null(data$annotation_data$df)){
       shinyCatch(stop("No annotation file uploaded."), blocking_level = "warning", position = 'bottom-left',shiny = T)
     }
     status_list$methylation_checked <- FALSE
@@ -51,23 +56,23 @@ server <- function(input, output, session) {
     
     # check annotation file
     if(input$dimmer_input_type == 'idat'){
-      if(!any(c('Sentrix_ID','Sentrix_Position') %in% colnames(annotation_data()$df))){
+      if(!any(c('Sentrix_ID','Sentrix_Position') %in% colnames(data$annotation_data$df))){
         shinyCatch(stop("Did not find mandatory columns Sentrix_ID or Sentrix_Position."), blocking_level = "warning", position = 'bottom-left',shiny = T)
       }
     }
     if(input$dimmer_input_type == 'beta'){
       if(input$dimmer_array_type == 'custom'){
-        if(!c('sample') %in% colnames(annotation_data()$df)){
+        if(!c('sample') %in% colnames(data$annotation_data$df)){
           shinyCatch(stop("Did not find mandatory sample column."), blocking_level = "warning", position = 'bottom-left',shiny = T)
         }
       }else{
-        if(!any(c('Sentrix_ID','Sentrix_Position') %in% colnames(annotation_data()$df))){
+        if(!any(c('Sentrix_ID','Sentrix_Position') %in% colnames(data$annotation_data$df))){
           shinyCatch(stop("Did not find mandatory columns Sentrix_ID or Sentrix_Position."), blocking_level = "warning", position = 'bottom-left',shiny = T)
         }
       }
     }
     if(input$dimmer_input_type == 'bisulfite'){
-      if(!c('sample') %in% colnames(annotation_data()$df)){
+      if(!c('sample') %in% colnames(data$annotation_data$df)){
         shinyCatch(stop("Did not find mandatory sample column."), blocking_level = "warning", position = 'bottom-left',shiny = T)
       }
     }
@@ -85,8 +90,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$dimmer_confirm3, {
+    selected_variable <<- input$dimmer_variable
     status_list$methylation_checked <- FALSE
-    
+    waiter::waiter_show(html = tagList(spin_rotating_plane(),"Uploading (and decompressing) input files ..." ),color=overlay_color)
+    #TODO cover screen with waiter during decompression, can take too long
     
     if(input$dimmer_input_type == 'beta'){
       if(is.null(input$dimmer_beta_path$datapath)){
@@ -104,22 +111,31 @@ server <- function(input, output, session) {
           shinyCatch(stop('Upload of methylation data incomplete.'), position = 'bottom-left', shiny = T, blocking_level = 'error')
         }
         inFile <- input$dimmer_upload_methylation
-        decompress(inFile$datapath, global_dir)
+        met_files <- decompress(inFile$datapath, global_dir)
         
         status_list$methylation_checked <- TRUE
         shinyCatch(message('Files are extracted and ready!'), position = 'bottom-left', shiny = T, blocking_level = 'none')
         
       }, error = function(e){
+        waiter::waiter_hide()
         print(e$message)
+        shinyCatch(stop(e$message), position = 'bottom-left', shiny = T, blocking_level = 'error')
       })
+      # need to adapt paths in annotation file, to fit with paths of uploaded files
+      if(input$dimmer_input_type == 'bisulfite'){
+        cov_file_location <- paste0(global_dir,'/', met_files)
+        data$annotation_data$sample <- cov_file_location
+      }
     }
     
+    waiter::waiter_hide()
     updateSpsTimeline(session, "timeLine", item_no = 3, complete = TRUE)
     js$collapse('box3')
     js$collapse('box4')
   })
   
   observeEvent(input$dimmer_confirm4, {
+    updateSelectInput(session, 'dimmer_variable', selected = selected_variable)
     updateSpsTimeline(session, "timeLine", item_no = 4, complete = TRUE)
     js$collapse('box4')
     js$collapse('box5')
@@ -145,12 +161,6 @@ server <- function(input, output, session) {
                type = "success", closeOnEsc = T,showCancelButton = T)
   })
   
-  # methylation data needs to be checked manually by pressing button
-  observeEvent(input$dimmer_methylation_check, {
-    
-
-  })
-  
   output$dimmer_download <- renderUI({
     if(status_list$dimmer_finished){
       downloadBttn("dimmer_download_button",
@@ -167,11 +177,11 @@ server <- function(input, output, session) {
 
   # write config to temporary file and start DiMmer
   observeEvent(input$dimmer_start, {
-    req(annotation_data())
+    req(data$annotation_data)
     waiter::waiter_show(html = tagList(spin_rotating_plane(),"Running DiMmer ..." ),color=overlay_color)
     status_list$dimmer_finished <- FALSE
     
-    if(is.null(annotation_data()$df)){
+    if(is.null(data$annotation_data$df)){
       waiter::waiter_hide()
       shinyCatch(stop("No annotation file uploaded."), blocking_level = "error", position = 'bottom-left',shiny = T)
       return(NULL)
@@ -183,7 +193,8 @@ server <- function(input, output, session) {
     }
 
     # create config file in temporary location
-    config_text <- create_config(input, annotation_data()$df)
+    waiter::waiter_update(html = tagList(spin_rotating_plane(),"Running DiMmer [creating config file] ..." ))
+    config_text <- create_config(input, data$annotation_data$df)
     temp_config <- tempfile(fileext = '.config')
     
     # create temporary output directory
@@ -192,7 +203,7 @@ server <- function(input, output, session) {
     config_text$output_path <- sprintf('output_path: %s', output_dir)
     
     # write location of annotation file into config
-    config_text$annotation_path <- sprintf('annotation_path: %s', annotation_data()$anno_file)
+    config_text$annotation_path <- sprintf('annotation_path: %s', data$annotation_data$anno_file)
     
     # for now: disable plotting when starting dimmer from shiny
     shinyCatch(message("Plotting is currently disabled when starting DiMmer from this webapp. We are working on a solution."), blocking_level = "none", position = 'bottom-left',shiny = T)
@@ -205,6 +216,7 @@ server <- function(input, output, session) {
     }
 
     if(!is.null(config_text)){
+      waiter::waiter_update(html = tagList(spin_rotating_plane(),paste0("Running DiMmer with ",config_text$threads," threads ..." )))
       write(unlist(config_text), file = temp_config, sep = '\t')
       dimmer_cmd <- paste0('-jar ',dimmer_path, ' ',temp_config)
       
@@ -212,6 +224,7 @@ server <- function(input, output, session) {
       system2(command = 'java', args = dimmer_cmd, 
               stdout = paste0(output_dir,'/logs_stdout.txt'), 
               stderr = paste0(output_dir,'/logs_stderr.txt'))
+      #TODO: check of output files exits in out-dir. If not, something went wrong..
       waiter::waiter_hide()
       shinyalert("Success!", "DiMmer has finished with processing your files. The download button in the sidebar has now been activated to download your results.", 
                  type = "success", closeOnEsc = T,showCancelButton = T)
@@ -244,13 +257,13 @@ server <- function(input, output, session) {
     },
     content = function(file){
       req(annotation_data())
-      if(is.null(annotation_data()$df)){
+      if(is.null(data$annotation_data$df)){
         waiter::waiter_hide()
         shinyCatch(stop("No annotation file uploaded."), blocking_level = "error", position = 'bottom-left',shiny = T)
         return(NULL)
       }
       
-      config_text <- create_config(input, annotation_data()$df)
+      config_text <- create_config(input, data$annotation_data$df)
       if(!is.null(config_text)){
         write(unlist(config_text), file = file, sep = '\t')
         shinyalert("Success!", "The config file has successfully been downloaded by your browser. Please check your downloads folder.", 
@@ -264,9 +277,9 @@ server <- function(input, output, session) {
   
   # read annotation file as soon as it is uploaded and update select input
   observe({
-    if(!is.null(annotation_data()$df)){
-      updateSelectInput(session, 'dimmer_variable', choices = colnames(annotation_data()$df))
-      updateSelectInput(session, 'dimmer_confounding_variables', choices = colnames(annotation_data()$df), selected = c(''))
+    if(!is.null(data$annotation_data$df)){
+      updateSelectInput(session, 'dimmer_variable', choices = colnames(data$annotation_data$df))
+      updateSelectInput(session, 'dimmer_confounding_variables', choices = colnames(data$annotation_data$df), selected = c(''))
     }
   })
   

@@ -92,7 +92,8 @@ upload.info.bisulfite.annotation <- function(){
   '<b> Upload Information: </b><br>
   Similar to the custom beta-value matrix input the annotation file columns Sentrix_ID and Sentrix_Position get replaced by
   the single column ”sample”. However, it is not used to link matrix columns to a row in the sample annotation
-  file, but <b>.cov files</b>. Please enter the full name of these .cov files in the ”sample” column (no path, only filename).<br> '
+  file, but <b>.cov files</b>. <br>
+  Please enter the <b>full filename</b> of these .cov files in the ”sample” column (no path, only filename).<br> '
 }
 
 upload.info.bisulfite.methyl <- function(){

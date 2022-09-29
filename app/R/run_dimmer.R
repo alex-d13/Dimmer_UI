@@ -9,20 +9,20 @@ create_config <- function(input, annotation_data){
   #   return(NULL)
   # }
   if(is.null(input$dimmer_annotation_path)){
-    shinyCatch(stop('You need to upload a sample annotation file!'), blocking_level = "error", position = 'bottom-left',shiny = T)
     waiter::waiter_hide()
+    shinyCatch(stop('You need to upload a sample annotation file!'), blocking_level = "error", position = 'bottom-left',shiny = T)
     return(NULL)
   }
   
   dimmer_variable_type <- check_variable(input$dimmer_variable, annotation_data)
   if(input$dimmer_model == 'Regression' && !dimmer_variable_type$numeric){
-    shinyCatch(stop('Selected variable needs to be numeric when using Regression model!'), blocking_level = "error", position = 'bottom-left',shiny = T)
     waiter::waiter_hide()
+    shinyCatch(stop('Selected variable needs to be numeric when using Regression model!'), blocking_level = "error", position = 'bottom-left',shiny = T)
     return(NULL)
   }
   if(input$dimmer_model == 'T-test' && !dimmer_variable_type$binary){
-    shinyCatch(stop('Selected variable needs to be binary when using T-test model!'), blocking_level = "error", position = 'bottom-left',shiny = T)
     waiter::waiter_hide()
+    shinyCatch(stop('Selected variable needs to be binary when using T-test model!'), blocking_level = "error", position = 'bottom-left',shiny = T)
     return(NULL)
   }
   
@@ -115,5 +115,5 @@ decompress <- function(archive, new_location){
     return(1)# no valid file extension/compression
   }
   unlink(archive)
-  return(0)
+  return(met_files)
 }

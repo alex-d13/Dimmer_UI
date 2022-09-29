@@ -4,7 +4,7 @@ ui <- dashboardPage(
   title = 'DiMmer',
   
   dashboardHeader(
-    title = span("DiMmer 3.0"),
+    title = span("DiMmer 2.0"),
     titleWidth = 300,
     
     dropdownMenu(
@@ -111,8 +111,14 @@ ui <- dashboardPage(
           fluidRow(
             column(4,
                    fileInput('dimmer_annotation_path', label = 'Select a sample annotation file', multiple = F),
-                   selectInput('dimmer_variable','Choose your variable of interest', choices = c('Please upload a sample annotation file first.')),
-                   p('TODO: warning that numeric of binary variable has to be selected'),
+                   actionBttn("dimmer_upload_annotation", 
+                              label = "Upload annotation", 
+                              color = "warning",
+                              size = 's',
+                              block = F,
+                              style = 'simple'),
+                   div(id='dimmer_upload_text_div',
+                       p('Please upload the annotation file and press the orange upload button to continue.')),
                    selectInput('dimmer_input_type', ' Select data input type', choices = c('idat','beta','bisulfite')),
                    conditionalPanel(
                      condition = "input.dimmer_input_type == 'idat'",
@@ -127,18 +133,22 @@ ui <- dashboardPage(
                      selectInput('dimmer_array_type','Choose the array type, the beta-matrix originates from', choices = c('450k','epic','custom')),
                      wellPanel(HTML(upload.info.beta.annotation()))
                    ),
-                   
+                   hidden(div(id='dimmer_upload_div',
+                       selectInput('dimmer_variable','Choose your variable of interest', choices = c('Please upload a sample annotation file first.')),
+                       p('TODO: warning that numeric of binary variable has to be selected')
+                   )),
+
           ),
           column(8,
                  DT::dataTableOutput('dimmer_annotation_table_output')
           )
           ),
-          actionBttn("dimmer_confirm1", 
+          hidden(actionBttn("dimmer_confirm1", 
                      label = "Confirm", 
                      color = "primary",
                      size = 'l',
                      block = F,
-                     style = 'simple')
+                     style = 'simple'))
           #hr(),
           #fileInput('dimmer_project_path', label = 'Select existing DiMmer project file', multiple = F),
           #p('If an existing project is loaded, DiMmer will directly start the DMR search.')
